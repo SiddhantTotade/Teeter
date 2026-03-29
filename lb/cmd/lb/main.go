@@ -47,7 +47,7 @@ func main() {
 			if timeout == 0 {
 				timeout = 3 * time.Second
 			}
-			b, err := backend.CreateNewBackend(bc.URL, timeout)
+			b, err := backend.CreateNewBackend(rc.Prefix, bc.URL, timeout)
 			if err != nil {
 				log.Printf("failed to create backend %s: %v", bc.URL, err)
 				continue
@@ -74,12 +74,12 @@ func main() {
 			Strategy: strat,
 		})
 
-		hc := health.NewHealthChecker(reg, 2*time.Second, 3, 2)
+		hc := health.NewHealthChecker(reg, 2*time.Second, 3, 1)
 		hc.Start(ctx)
 	}
 
 	q.StartWorkers(50, func(req *queue.Request) {
-		h.ServeBackend(req.W, req.R, req.Registry, req.Strategy)
+		h.ServeBackend(req)
 	})
 
 	if cfg.Admin > 0 {

@@ -7,42 +7,63 @@ routes:
   - prefix: "/api/auth/login"
     strategy: "round_robin"
     backends:
-      - url: "http://127.0.0.1:1994"
+      - url: "http://host.docker.internal:1994"
   - prefix: "/api/auth/register"
     strategy: "round_robin"
     backends:
-      - url: "http://127.0.0.1:1994"
+      - url: "http://host.docker.internal:1994"
 
   # 2. NextAuth Catch-all (for sessions, callbacks, etc.)
   - prefix: "/api/auth"
     strategy: "round_robin"
     backends:
-      - url: "http://127.0.0.1:3000"
+      - url: "http://host.docker.internal:3000"
 
-  # 3. Rest of Java APIs
+  # 3. Video Uploads (High timeout for large files)
+  - prefix: "/api/upload"
+    strategy: "round_robin"
+    backends:
+      - url: "http://host.docker.internal:1994"
+        timeout: "300s"
+
+  # 4. Video Playback (HLS Proxy)
+  - prefix: "/api/live/proxy"
+    strategy: "round_robin"
+    backends:
+      - url: "http://host.docker.internal:1994"
+        timeout: "30s"
+
+  # 5. Video Metadata & Download
+  - prefix: "/api/videos"
+    strategy: "round_robin"
+    backends:
+      - url: "http://host.docker.internal:1994"
+        timeout: "10s"
+
+  # 6. Rest of Java APIs
   - prefix: "/api"
     strategy: "round_robin"
     backends:
-      - url: "http://127.0.0.1:1994"
-        timeout: "3s"
+      - url: "http://host.docker.internal:1994"
+        timeout: "5s"
 
   # 3. Infrastructure & Hooks (Java)
   - prefix: "/ws-video-status"
     strategy: "round_robin"
     backends:
-      - url: "http://127.0.0.1:1994"
+      - url: "http://host.docker.internal:1994"
   - prefix: "/validate"
     strategy: "round_robin"
     backends:
-      - url: "http://127.0.0.1:1994"
+      - url: "http://host.docker.internal:1994"
   - prefix: "/done"
     strategy: "round_robin"
     backends:
-      - url: "http://127.0.0.1:1994"
+      - url: "http://host.docker.internal:1994"
 
   # 5. Frontend Route (React)
   - prefix: "/"
     strategy: "round_robin"
     backends:
-      - url: "http://127.0.0.1:3000"
+      - url: "http://host.docker.internal:3000"
         timeout: "10s"

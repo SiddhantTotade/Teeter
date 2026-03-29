@@ -1,0 +1,36 @@
+services:
+  teeter:
+    build: .
+    ports:
+      - "1996:1996"
+      - "1997:1997"
+    volumes:
+      - ./config.yaml:/root/config.yaml
+    networks:
+      - teeter-net
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - teeter-net
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3005:3000"
+    environment:
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_BASIC_ENABLED=false
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - teeter-net
+
+networks:
+  teeter-net:
+    driver: bridge

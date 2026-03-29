@@ -12,6 +12,7 @@ Teeter is designed to sit in front of your microservices (e.g., a Java backend a
 - **Resilience**: Active health checks, Circuit Breaker, and Exponential Backoff retries.
 - **Traffic Shaping**: Token-bucket rate limiting and worker-pool request queuing.
 - **Live Admin API**: Inspect status and add backends at runtime without restarts.
+- **Metrics & Observability**: Native Prometheus instrumentation and pre-configured Grafana dashboards.
 
 ## 📋 Prerequisites
 
@@ -36,8 +37,18 @@ go run lb/cmd/lb/main.go -config config.yaml
 ### 3. Accessing the Services
 - **Proxy Entry Point**: `http://localhost:1996` (based on default config)
 - **Admin API**: `http://localhost:1997/status`
+- **Prometheus Metrics**: `http://localhost:1997/metrics`
 
-## ⚙️ Configuration Example
+### 💡 Manual Network Migration
+When your IP address changes (e.g., switching WiFi), you must manually update the backend URLs in `config.yaml`. See the [Manual Migration Guide](file:///C:/Users/cools/.gemini/antigravity/brain/a4c62a47-464b-43c3-a6e9-1ec1e99fa8a6/manual_migration_guide.md) for a full list of files.
+
+```yaml
+# Manual IP configuration
+backends:
+  - url: "http://192.168.1.18:1994"
+```
+
+## ⚙️ Configuration Reference
 
 Teeter is configured via `config.yaml`. Below is an example setup for a common Java + React full-stack application:
 
@@ -77,6 +88,28 @@ curl -X POST http://localhost:1997/add-backend \
   -H "Content-Type: application/json" \
   -d '{"prefix": "/api", "url": "http://127.0.0.1:8081"}'
 ```
+
+## 📈 Monitoring & Observability
+
+Teeter is built with observability in mind. Every request, latency, and health check is exported for analysis.
+
+### Docker Compose Stack
+The easiest way to run the full monitoring suite is via Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+This will launch:
+- **Teeter**: The load balancer.
+- **Prometheus**: Collected metrics at `http://localhost:9090`.
+- **Grafana**: A pre-configured dashboard at `http://localhost:3005`.
+
+### Custom Dashboard
+Teeter includes a pre-provisioned Grafana dashboard that visualizes:
+- **RPS (Requests Per Second)**: Real-time traffic throughput.
+- **Latencies**: p50 and p99 quantiles.
+- **Backend Health**: Visual indicators of which backends are online.
 
 ---
 

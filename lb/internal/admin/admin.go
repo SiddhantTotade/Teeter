@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go_loadbalancer/lb/internal/backend"
 	"go_loadbalancer/lb/internal/gateway"
 )
@@ -23,6 +24,7 @@ func (s *AdminServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/status", s.handleStatus)
 	mux.HandleFunc("/add-backend", s.handleAddBackend)
+	mux.Handle("/metrics", promhttp.Handler())
 	mux.ServeHTTP(w, r)
 }
 
@@ -44,7 +46,7 @@ func (s *AdminServer) handleAddBackend(w http.ResponseWriter, r *http.Request) {
 
 	for _, route := range s.gateway.Routes {
 		if route.Prefix == req.Prefix {
-			b, err := backend.CreateNewBackend(req.URL, 3*time.Second)
+			b, err := backend.CreateNewBackend(req.Prefix, req.URL, 3*time.Second)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return

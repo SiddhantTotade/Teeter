@@ -16,12 +16,14 @@ type Backend struct {
 	Alive     atomic.Bool
 	Transport *http.Transport
 	Failures  atomic.Int32
-	Successes atomic.Int32
+	Successes         atomic.Int32
+	ActiveConnections atomic.Int32
+	RoutePrefix       string
 
 	CB *circuitbreaker.CircuitBreaker
 }
 
-func CreateNewBackend(rawURL string, timeout time.Duration) (*Backend, error) {
+func CreateNewBackend(routePrefix string, rawURL string, timeout time.Duration) (*Backend, error) {
 	parsed, err := url.Parse(rawURL)
 
 	if err != nil {
@@ -48,10 +50,11 @@ func CreateNewBackend(rawURL string, timeout time.Duration) (*Backend, error) {
 	proxy.Transport = transport
 
 	b := &Backend{
-		URL:       parsed,
-		Proxy:     proxy,
-		Transport: transport,
-		CB:        circuitbreaker.NewCircuitBreaker(3, 5*time.Second),
+		URL:         parsed,
+		Proxy:       proxy,
+		Transport:   transport,
+		RoutePrefix: routePrefix,
+		CB:          circuitbreaker.NewCircuitBreaker(3, 5*time.Second),
 	}
 
 	b.Alive.Store(true)

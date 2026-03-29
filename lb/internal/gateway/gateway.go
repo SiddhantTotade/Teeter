@@ -35,6 +35,7 @@ func (g *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				Done:     make(chan struct{}),
 				Registry: route.Registry,
 				Strategy: route.Strategy,
+				Route:    route.Prefix,
 			}
 
 			if !g.Handler.Queue.Enqueue(reqWrap) {

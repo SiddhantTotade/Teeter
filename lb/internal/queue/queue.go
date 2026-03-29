@@ -12,6 +12,7 @@ type Request struct {
 	Done     chan struct{}
 	Registry *registry.BackendRegistry
 	Strategy strategy.Strategy
+	Route    string
 }
 
 type RequestQueue struct {

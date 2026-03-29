@@ -22,8 +22,8 @@ WORKDIR /root/
 COPY --from=builder /app/teeter .
 COPY --from=builder /app/config.yaml .
 
-# Expose ports (default)
-EXPOSE 8080 8081
+# Expose ports (Proxy and Admin)
+EXPOSE 1996 1997
 
 # Command to run the application
 CMD ["./teeter", "-config", "config.yaml"]

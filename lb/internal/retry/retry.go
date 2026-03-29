@@ -155,7 +155,9 @@ func DoWithRetries(w http.ResponseWriter, req *http.Request, reg *registry.Backe
 		time.Sleep(backoff)
 	}
 
-	http.Error(w, http.StatusText(http.StatusBadGateway), http.StatusBadGateway)
+	if lastErr == nil {
+		lastErr = fmt.Errorf("all backends had open circuits after %d attempts", policy.MaxAttempts)
+	}
 
 	return lastErr
 }

@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"go_loadbalancer/lb/internal/backend"
+	"go_loadbalancer/lb/internal/metrics"
 	"go_loadbalancer/lb/internal/queue"
 	"go_loadbalancer/lb/internal/ratelimit"
 	"go_loadbalancer/lb/internal/registry"
@@ -61,7 +62,7 @@ func (h *LBHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 }
 
-func (h *LBHandler) processRequest(w http.ResponseWriter, req *http.Request, reg *registry.BackendRegistry, strat strategy.Strategy) {
+func (h *LBHandler) processRequest(w http.ResponseWriter, req *http.Request, reg *registry.BackendRegistry, strat strategy.Strategy, routePrefix string) {
 	var bodyBuf []byte
 	if req.Body != nil {
 		if b, err := io.ReadAll(req.Body); err == nil {
@@ -72,20 +73,38 @@ func (h *LBHandler) processRequest(w http.ResponseWriter, req *http.Request, reg
 
 	var lastErr error
 
-	for attempt := 0; attempt < h.MaxRetries; attempt++ {
-
+	var attempt int
+	for attempt = 0; attempt < h.MaxRetries; attempt++ {
 		alive := reg.AliveBackends()
 		if len(alive) == 0 {
+			w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 			http.Error(w, "no backend available", http.StatusServiceUnavailable)
 			return
 		}
 
 		backend := strat.Next(alive)
 		if backend == nil {
-		log.Printf("No healthy backends available for path: %s", req.URL.Path)
-		http.Error(w, fmt.Sprintf("No healthy backend service found for path %s. Please check if your services are running.", req.URL.Path), http.StatusServiceUnavailable)
-		return
-	}
+			log.Printf("No healthy backends available for path: %s", req.URL.Path)
+			w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+			http.Error(w, fmt.Sprintf("No healthy backend service found for path %s. Please check if your services are running.", req.URL.Path), http.StatusServiceUnavailable)
+			return
+		}
+
+		// Handle Protocol Upgrades (WebSockets, Next.js HMR, etc.)
+		isUpgrade := strings.ToLower(req.Header.Get("Connection")) == "upgrade" || req.Header.Get("Upgrade") != ""
+		if isUpgrade {
+			log.Printf("Detected Protocol Upgrade (e.g. WebSocket) for %s. Bypassing retry recorder.", req.URL.Path)
+			backend.ActiveConnections.Add(1)
+			metrics.ActiveConnections.WithLabelValues(routePrefix, backend.URL.String()).Inc()
+			defer func() {
+				backend.ActiveConnections.Add(-1)
+				metrics.ActiveConnections.WithLabelValues(routePrefix, backend.URL.String()).Dec()
+			}()
+
+			backend.Proxy.ServeHTTP(w, req)
+			return
+		}
+
 
 		if backend.CB != nil {
 			if ok := backend.CB.BeforeRequest(); !ok {
@@ -98,17 +117,23 @@ func (h *LBHandler) processRequest(w http.ResponseWriter, req *http.Request, reg
 			req.Body = io.NopCloser(bytes.NewReader(bodyBuf))
 		}
 
-		if isWebSocket(req) {
-			h.proxyWebSocket(w, req, backend)
-			return
-		}
+	start := time.Now()
+	backend.ActiveConnections.Add(1)
+	metrics.ActiveConnections.WithLabelValues(routePrefix, backend.URL.String()).Inc()
+	defer func() {
+		backend.ActiveConnections.Add(-1)
+		metrics.ActiveConnections.WithLabelValues(routePrefix, backend.URL.String()).Dec()
+		metrics.RequestDuration.WithLabelValues(routePrefix).Observe(time.Since(start).Seconds())
+	}()
 
-		log.Printf("Forwarding %s %s to %s", req.Method, req.URL.Path, backend.URL)
-		rec := retry.NewResponseRecorder()
-		backend.Proxy.ServeHTTP(rec, req)
-		log.Printf("Backend returned %d with %d headers", rec.Status, len(rec.HeaderMap))
+	log.Printf("Forwarding %s %s to %s", req.Method, req.URL.Path, backend.URL)
+	rec := retry.NewResponseRecorder()
+	backend.Proxy.ServeHTTP(rec, req)
+	log.Printf("Backend returned %d with %d headers", rec.Status, len(rec.HeaderMap))
 
-		if rec.Status < 500 {
+	metrics.RequestsTotal.WithLabelValues(routePrefix, req.Method, fmt.Sprintf("%d", rec.Status)).Inc()
+
+	if rec.Status < 500 {
 			backend.RecordSuccess()
 
 			for k, vv := range rec.HeaderMap {
@@ -146,14 +171,21 @@ func (h *LBHandler) processRequest(w http.ResponseWriter, req *http.Request, reg
 	}
 
 	if lastErr == nil {
-		lastErr = fmt.Errorf("all backend failed")
+		if attempt >= h.MaxRetries {
+			lastErr = fmt.Errorf("all backends currently have open circuits after %d attempts. Site will self-recover once backends respond.", h.MaxRetries)
+		} else {
+			lastErr = fmt.Errorf("all backends failed to respond")
+		}
 	}
 
+	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	w.Header().Set("Pragma", "no-cache")
+	w.Header().Set("Expires", "0")
 	http.Error(w, lastErr.Error(), http.StatusBadGateway)
 }
 
-func (h *LBHandler) ServeBackend(w http.ResponseWriter, r *http.Request, reg *registry.BackendRegistry, strat strategy.Strategy) {
-	h.processRequest(w, r, reg, strat)
+func (h *LBHandler) ServeBackend(qReq *queue.Request) {
+	h.processRequest(qReq.W, qReq.R, qReq.Registry, qReq.Strategy, qReq.Route)
 }
 
 func isWebSocket(r *http.Request) bool {

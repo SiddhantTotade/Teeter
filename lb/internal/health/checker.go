@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"go_loadbalancer/lb/internal/backend"
+	"go_loadbalancer/lb/internal/metrics"
 	"go_loadbalancer/lb/internal/registry"
 )
 
@@ -69,6 +70,7 @@ func (hc *HealthChecker) check() {
 						log.Printf("Backend [%s] is now DOWN (failed %d times)", backend.URL.String(), backend.FailCount())
 					}
 					backend.MarkDead()
+					metrics.BackendStatus.WithLabelValues(backend.RoutePrefix, backend.URL.String()).Set(0)
 				}
 			} else {
 				backend.ResetFailCount()
@@ -78,6 +80,7 @@ func (hc *HealthChecker) check() {
 						log.Printf("Backend [%s] is now ONLINE (succeeded %d times)", backend.URL.String(), backend.SuccessCount())
 					}
 					backend.MarkAlive()
+					metrics.BackendStatus.WithLabelValues(backend.RoutePrefix, backend.URL.String()).Set(1)
 				}
 			}
 		}(b)
