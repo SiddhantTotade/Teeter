@@ -1,0 +1,41 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+go_loadbalancer
+teeter
+
+# Output of 'go build'
+/lb/cmd/lb/lb
+/lb/cmd/lb/lb.exe
+
+# Dependency directories
+vendor/
+
+# IDE Settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS Metadata
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Environment and Secrets
+.env
+config.local.yaml
+
+# Compiled Object files
+*.a
+*.o
+*.6
+*.8
+
+# Test results
+*.out
+*.test
+prof

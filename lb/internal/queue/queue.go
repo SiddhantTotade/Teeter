@@ -2,12 +2,16 @@ package queue
 
 import (
 	"net/http"
+	"go_loadbalancer/lb/internal/registry"
+	"go_loadbalancer/lb/internal/strategy"
 )
 
 type Request struct {
-	W    http.ResponseWriter
-	R    *http.Request
-	Done chan struct{}
+	W        http.ResponseWriter
+	R        *http.Request
+	Done     chan struct{}
+	Registry *registry.BackendRegistry
+	Strategy strategy.Strategy
 }
 
 type RequestQueue struct {

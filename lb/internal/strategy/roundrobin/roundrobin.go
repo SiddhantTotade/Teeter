@@ -17,10 +17,19 @@ func New() strategy.Strategy {
 }
 
 func (rr *RoundRobin) Next(backends []*backend.Backend) *backend.Backend {
-	if len(backends) == 0 {
+	n := uint64(len(backends))
+	if n == 0 {
 		return nil
 	}
 
-	idx := (rr.counter.Add(1) - 1) % uint64(len(backends))
-	return backends[int(idx)]
+	start := rr.counter.Add(1) - 1
+	for i := uint64(0); i < n; i++ {
+		idx := (start + i) % n
+		b := backends[idx]
+		if b.IsAlive() {
+			return b
+		}
+	}
+
+	return nil
 }

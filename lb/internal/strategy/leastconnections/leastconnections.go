@@ -1,4 +1,4 @@
-package leastconnectionsgo
+package leastconnections
 
 import (
 	"go_loadbalancer/lb/internal/backend"

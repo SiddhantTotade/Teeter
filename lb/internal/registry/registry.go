@@ -55,8 +55,8 @@ func (r *BackendRegistry) List() []*backend.Backend {
 }
 
 func (r *BackendRegistry) AliveBackends() []*backend.Backend {
-	r.mu.Lock()
-	defer r.mu.Unlock()
+	r.mu.RLock()
+	defer r.mu.RUnlock()
 
 	alive := make([]*backend.Backend, 0)
 

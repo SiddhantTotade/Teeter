@@ -2,6 +2,8 @@ package gateway
 
 import (
 	"go_loadbalancer/lb/internal/handler"
+	"go_loadbalancer/lb/internal/queue"
+	"log"
 	"net/http"
 )
 
@@ -24,10 +26,23 @@ func (g *Gateway) Register(r *Route) {
 func (g *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	for _, route := range g.Routes {
 		if route.Match(r.URL.Path) {
+			log.Printf("Route Match: Path [%s] -> Prefix [%s]", r.URL.Path, route.Prefix)
 			r.URL.Path = route.Rewrite(r.URL.Path)
-			g.Handler.Registry = route.Registry
-			g.Handler.Strategy = route.Strategy
-			g.Handler.ServeBackend(w, r)
+			
+			reqWrap := &queue.Request{
+				W:        w,
+				R:        r,
+				Done:     make(chan struct{}),
+				Registry: route.Registry,
+				Strategy: route.Strategy,
+			}
+
+			if !g.Handler.Queue.Enqueue(reqWrap) {
+				http.Error(w, "Server busy", http.StatusServiceUnavailable)
+				return
+			}
+
+			<-reqWrap.Done
 			return
 		}
 	}

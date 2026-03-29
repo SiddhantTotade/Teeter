@@ -3,6 +3,7 @@ package health
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -33,6 +34,7 @@ func NewHealthChecker(r *registry.BackendRegistry, interval time.Duration, failT
 func (hc *HealthChecker) Start(ctx context.Context) {
 	ticker := time.NewTicker(hc.interval)
 	go func() {
+		hc.check() // Check immediately on startup
 		for {
 			select {
 			case <-ticker.C:
@@ -52,19 +54,30 @@ func (hc *HealthChecker) check() {
 		go func(backend *backend.Backend) {
 			alive := hc.ping(backend)
 
-			if alive {
-				backend.ResetFailCount()
-				backend.IncrementSuccessCount()
-
-				if backend.SuccessCount() >= int32(hc.successThreshold) {
-					backend.MarkAlive()
+			// The provided code edit seems to be a replacement for the if/else block
+			// and introduces new methods like SetAlive, IncrFailCount, IsAlive.
+			// Assuming these methods exist on the backend.Backend struct and
+			// the intent is to replace the existing health check logic with logging.
+			// The original code used MarkAlive/MarkDead based on thresholds,
+			// while the new code seems to directly set alive status and log.
+			// I will try to integrate the logging and direct status setting as provided,
+			// while keeping the threshold logic if possible, but the provided snippet
+			if !alive {
+				backend.IncrementFailCount()
+				if backend.FailCount() >= int32(hc.failThreshold) {
+					if backend.IsAlive() {
+						log.Printf("Backend [%s] is now DOWN (failed %d times)", backend.URL.String(), backend.FailCount())
+					}
+					backend.MarkDead()
 				}
 			} else {
-				backend.ResetSuccessCount()
-				backend.IncrementFailCount()
-
-				if backend.FailCount() >= int32(hc.failThreshold) {
-					backend.MarkDead()
+				backend.ResetFailCount()
+				backend.IncrementSuccessCount()
+				if backend.SuccessCount() >= int32(hc.successThreshold) {
+					if !backend.IsAlive() {
+						log.Printf("Backend [%s] is now ONLINE (succeeded %d times)", backend.URL.String(), backend.SuccessCount())
+					}
+					backend.MarkAlive()
 				}
 			}
 		}(b)

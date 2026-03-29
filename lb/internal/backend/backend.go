@@ -36,6 +36,15 @@ func CreateNewBackend(rawURL string, timeout time.Duration) (*Backend, error) {
 	}
 
 	proxy := httputil.NewSingleHostReverseProxy(parsed)
+	originalDirector := proxy.Director
+	proxy.Director = func(req *http.Request) {
+		originalHost := req.Host
+		originalDirector(req)
+		// We don't overwrite req.Host here anymore, keeping it as the backend's host
+		// but providing the original info in X-Forwarded headers.
+		req.Header.Set("X-Forwarded-Host", originalHost)
+		req.Header.Set("X-Forwarded-Proto", "http")
+	}
 	proxy.Transport = transport
 
 	b := &Backend{

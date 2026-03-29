@@ -1,0 +1,48 @@
+# Teeter Configuration for Java + React
+port: 1996       # Access your project at http://localhost:1996
+admin_port: 1997  # Access Admin API at http://localhost:1997
+
+routes:
+  # 1. Java Registration/Login (Must be before NextAuth catch-all)
+  - prefix: "/api/auth/login"
+    strategy: "round_robin"
+    backends:
+      - url: "http://127.0.0.1:1994"
+  - prefix: "/api/auth/register"
+    strategy: "round_robin"
+    backends:
+      - url: "http://127.0.0.1:1994"
+
+  # 2. NextAuth Catch-all (for sessions, callbacks, etc.)
+  - prefix: "/api/auth"
+    strategy: "round_robin"
+    backends:
+      - url: "http://127.0.0.1:3000"
+
+  # 3. Rest of Java APIs
+  - prefix: "/api"
+    strategy: "round_robin"
+    backends:
+      - url: "http://127.0.0.1:1994"
+        timeout: "3s"
+
+  # 3. Infrastructure & Hooks (Java)
+  - prefix: "/ws-video-status"
+    strategy: "round_robin"
+    backends:
+      - url: "http://127.0.0.1:1994"
+  - prefix: "/validate"
+    strategy: "round_robin"
+    backends:
+      - url: "http://127.0.0.1:1994"
+  - prefix: "/done"
+    strategy: "round_robin"
+    backends:
+      - url: "http://127.0.0.1:1994"
+
+  # 5. Frontend Route (React)
+  - prefix: "/"
+    strategy: "round_robin"
+    backends:
+      - url: "http://127.0.0.1:3000"
+        timeout: "10s"

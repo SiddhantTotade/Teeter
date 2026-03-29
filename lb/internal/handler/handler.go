@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"net/http"
+	"strings"
 	"time"
 
+	"go_loadbalancer/lb/internal/backend"
 	"go_loadbalancer/lb/internal/queue"
 	"go_loadbalancer/lb/internal/ratelimit"
 	"go_loadbalancer/lb/internal/registry"
@@ -37,9 +40,11 @@ func NewHandler(r *registry.BackendRegistry, s strategy.Strategy, maxRetries int
 func (h *LBHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	reqWrap := &queue.Request{
-		W:    w,
-		R:    req,
-		Done: make(chan struct{}),
+		W:        w,
+		R:        req,
+		Done:     make(chan struct{}),
+		Registry: h.Registry,
+		Strategy: h.Strategy,
 	}
 
 	if h.GlobalLimiter != nil && !h.GlobalLimiter.Allow() {
@@ -56,7 +61,7 @@ func (h *LBHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 }
 
-func (h *LBHandler) processRequest(w http.ResponseWriter, req *http.Request) {
+func (h *LBHandler) processRequest(w http.ResponseWriter, req *http.Request, reg *registry.BackendRegistry, strat strategy.Strategy) {
 	var bodyBuf []byte
 	if req.Body != nil {
 		if b, err := io.ReadAll(req.Body); err == nil {
@@ -69,17 +74,18 @@ func (h *LBHandler) processRequest(w http.ResponseWriter, req *http.Request) {
 
 	for attempt := 0; attempt < h.MaxRetries; attempt++ {
 
-		alive := h.Registry.AliveBackends()
+		alive := reg.AliveBackends()
 		if len(alive) == 0 {
 			http.Error(w, "no backend available", http.StatusServiceUnavailable)
 			return
 		}
 
-		backend := h.Strategy.Next(alive)
+		backend := strat.Next(alive)
 		if backend == nil {
-			http.Error(w, "no backend selected", http.StatusServiceUnavailable)
-			return
-		}
+		log.Printf("No healthy backends available for path: %s", req.URL.Path)
+		http.Error(w, fmt.Sprintf("No healthy backend service found for path %s. Please check if your services are running.", req.URL.Path), http.StatusServiceUnavailable)
+		return
+	}
 
 		if backend.CB != nil {
 			if ok := backend.CB.BeforeRequest(); !ok {
@@ -92,14 +98,24 @@ func (h *LBHandler) processRequest(w http.ResponseWriter, req *http.Request) {
 			req.Body = io.NopCloser(bytes.NewReader(bodyBuf))
 		}
 
+		if isWebSocket(req) {
+			h.proxyWebSocket(w, req, backend)
+			return
+		}
+
+		log.Printf("Forwarding %s %s to %s", req.Method, req.URL.Path, backend.URL)
 		rec := retry.NewResponseRecorder()
 		backend.Proxy.ServeHTTP(rec, req)
+		log.Printf("Backend returned %d with %d headers", rec.Status, len(rec.HeaderMap))
 
 		if rec.Status < 500 {
 			backend.RecordSuccess()
 
 			for k, vv := range rec.HeaderMap {
 				for _, v := range vv {
+					if strings.Contains(strings.ToLower(k), "cookie") {
+						log.Printf("Passing header: %s: %s", k, v)
+					}
 					w.Header().Add(k, v)
 				}
 			}
@@ -136,6 +152,53 @@ func (h *LBHandler) processRequest(w http.ResponseWriter, req *http.Request) {
 	http.Error(w, lastErr.Error(), http.StatusBadGateway)
 }
 
-func (h *LBHandler) ServeBackend(w http.ResponseWriter, r *http.Request) {
-	h.processRequest(w, r)
+func (h *LBHandler) ServeBackend(w http.ResponseWriter, r *http.Request, reg *registry.BackendRegistry, strat strategy.Strategy) {
+	h.processRequest(w, r, reg, strat)
+}
+
+func isWebSocket(r *http.Request) bool {
+	return strings.ToLower(r.Header.Get("Upgrade")) == "websocket"
+}
+
+func (h *LBHandler) proxyWebSocket(w http.ResponseWriter, r *http.Request, b *backend.Backend) {
+	targetURL := *b.URL
+	targetURL.Path = r.URL.Path
+	targetURL.RawQuery = r.URL.RawQuery
+	if targetURL.Scheme == "http" {
+		targetURL.Scheme = "ws"
+	} else if targetURL.Scheme == "https" {
+		targetURL.Scheme = "wss"
+	}
+
+	hj, ok := w.(http.Hijacker)
+	if !ok {
+		http.Error(w, "webserver doesn't support hijacking", http.StatusInternalServerError)
+		return
+	}
+	conn, _, err := hj.Hijack()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer conn.Close()
+
+	backConn, err := net.Dial("tcp", b.URL.Host)
+	if err != nil {
+		http.Error(w, "could not connect to backend", http.StatusServiceUnavailable)
+		return
+	}
+	defer backConn.Close()
+
+	if err := r.Write(backConn); err != nil {
+		return
+	}
+
+	errc := make(chan error, 2)
+	cp := func(dst io.Writer, src io.Reader) {
+		_, err := io.Copy(dst, src)
+		errc <- err
+	}
+	go cp(backConn, conn)
+	go cp(conn, backConn)
+	<-errc
 }
