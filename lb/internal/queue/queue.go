@@ -38,11 +38,21 @@ func (rq *RequestQueue) StartWorkers(workerCount int, handler func(r *Request)) 
 	for i := 0; i < workerCount; i++ {
 		go func() {
 			for req := range rq.queue {
-				handler(req)
-				if req.Done != nil {
-					close(req.Done)
-				}
+				rq.processWithRecovery(req, handler)
 			}
 		}()
 	}
+}
+
+func (rq *RequestQueue) processWithRecovery(req *Request, handler func(r *Request)) {
+	defer func() {
+		if r := recover(); r != nil {
+			// Log the panic and continue
+			println("Worker recovered from panic:", r)
+		}
+		if req.Done != nil {
+			close(req.Done)
+		}
+	}()
+	handler(req)
 }

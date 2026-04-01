@@ -78,7 +78,7 @@ func (h *LBHandler) processRequest(w http.ResponseWriter, req *http.Request, reg
 		alive := reg.AliveBackends()
 		if len(alive) == 0 {
 			w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-			http.Error(w, "no backend available", http.StatusServiceUnavailable)
+			ServeErrorPage(w, req, http.StatusServiceUnavailable, "Service Unavailable", "no backend available")
 			return
 		}
 
@@ -86,7 +86,7 @@ func (h *LBHandler) processRequest(w http.ResponseWriter, req *http.Request, reg
 		if backend == nil {
 			log.Printf("No healthy backends available for path: %s", req.URL.Path)
 			w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-			http.Error(w, fmt.Sprintf("No healthy backend service found for path %s. Please check if your services are running.", req.URL.Path), http.StatusServiceUnavailable)
+			ServeErrorPage(w, req, http.StatusServiceUnavailable, "Service Unavailable", fmt.Sprintf("No healthy backend service found for path %s. Please check if your services are running.", req.URL.Path))
 			return
 		}
 
@@ -181,7 +181,7 @@ func (h *LBHandler) processRequest(w http.ResponseWriter, req *http.Request, reg
 	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	w.Header().Set("Pragma", "no-cache")
 	w.Header().Set("Expires", "0")
-	http.Error(w, lastErr.Error(), http.StatusBadGateway)
+	ServeErrorPage(w, req, http.StatusBadGateway, "Bad Gateway", lastErr.Error())
 }
 
 func (h *LBHandler) ServeBackend(qReq *queue.Request) {

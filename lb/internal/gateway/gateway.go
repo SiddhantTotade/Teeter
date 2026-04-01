@@ -1,6 +1,7 @@
 package gateway
 
 import (
+	"fmt"
 	"go_loadbalancer/lb/internal/handler"
 	"go_loadbalancer/lb/internal/queue"
 	"log"
@@ -39,7 +40,7 @@ func (g *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 
 			if !g.Handler.Queue.Enqueue(reqWrap) {
-				http.Error(w, "Server busy", http.StatusServiceUnavailable)
+				handler.ServeErrorPage(w, r, http.StatusServiceUnavailable, "Server Busy", "The load balancer queue is currently full. Please try again in a few seconds.")
 				return
 			}
 
@@ -48,5 +49,5 @@ func (g *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	http.Error(w, "route not found", http.StatusNotFound)
+	handler.ServeErrorPage(w, r, http.StatusNotFound, "Route Not Found", fmt.Sprintf("The requested path '%s' is not registered in our routing configuration.", r.URL.Path))
 }

@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teeter | Project Documentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0f1a;
+            --sidebar-bg: #111827;
+            --card-bg: rgba(30, 41, 59, 0.4);
+            --border: rgba(255, 255, 255, 0.1);
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.5);
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+            display: flex;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 280px;
+            height: 100vh;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .nav-links {
+            list-style: none;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .nav-links::-webkit-scrollbar { width: 5px; }
+        .nav-links::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+        .nav-links li {
+            margin-bottom: 1rem;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: block;
+            border-left: 2px solid transparent;
+            padding-left: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--primary);
+            border-left: 2px solid var(--primary);
+        }
+
+        .nav-links .group-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: rgba(255,255,255,0.3);
+            margin: 1.5rem 0 0.5rem 0;
+            padding-left: 1rem;
+            font-weight: 700;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 4rem;
+            max-width: 1200px;
+        }
+
+        header {
+            margin-bottom: 4rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #fff, #3b82f6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary);
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            margin-bottom: 1.5rem;
+        }
+
+        section {
+            margin-bottom: 6rem;
+            animation: slideIn 0.8s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #fff;
+        }
+
+        h2::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        p {
+            margin-bottom: 1.5rem;
+            font-size: 1.05rem;
+            color: var(--text-muted);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            border-color: var(--primary);
+            border-top-color: var(--border);
+            transform: translateY(-5px);
+            background: rgba(30, 41, 59, 0.6);
+            box-shadow: 0 10px 40px -10px rgba(59, 130, 246, 0.1);
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        strong {
+            color: #fff;
+        }
+
+        ul {
+            margin-bottom: 1.5rem;
+            padding-left: 1.2rem;
+            color: var(--text-muted);
+        }
+        
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: var(--accent);
+        }
+
+        .directory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .file-card {
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 1.2rem;
+            font-size: 0.9rem;
+        }
+
+        .file-card h4 {
+            color: var(--primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            word-break: break-all;
+        }
+        
+        .file-card.folder h4 {
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        .file-card p {
+            margin-bottom: 0;
+            font-size: 0.9rem;
+        }
+
+        .example-box {
+            background: rgba(16, 185, 129, 0.05);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            overflow-x: auto;
+        }
+
+        .example-box pre {
+            font-family: 'JetBrains Mono', monospace;
+            color: #fff;
+            margin: 0;
+        }
+
+        .diagram-box {
+            background: #000;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 2rem;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--success);
+            line-height: 2;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { 
+                width: 100%; 
+                height: auto; 
+                position: relative; 
+                border-right: none; 
+                border-bottom: 1px solid var(--border); 
+                padding: 1.5rem;
+                overflow: visible;
+            }
+            .logo { margin-bottom: 1.5rem; }
+            .nav-links { 
+                display: flex; 
+                flex-wrap: wrap; 
+                gap: 10px; 
+            }
+             .nav-links .group-label { display: none; }
+            .nav-links li { margin-bottom: 0; }
+            .nav-links a { 
+                padding: 0.5rem 1rem; 
+                border-left: none; 
+                background: var(--card-bg); 
+                border-radius: 8px; 
+                font-size: 0.9rem; 
+            }
+            .nav-links a:hover, .nav-links a.active { 
+                border-left: none; 
+                background: var(--primary); 
+                color: #fff; 
+            }
+            .main-content { margin-left: 0; padding: 2rem; }
+            h1 { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">T</div>
+            Teeter
+        </div>
+        <ul class="nav-links">
+            <div class="group-label">Introduction</div>
+            <li><a href="#intro">Overview</a></li>
+            <li><a href="#lb101">Load Balancing 101</a></li>
+            
+            <div class="group-label">Deep Dive</div>
+            <li><a href="#architecture">How Teeter Works</a></li>
+            <li><a href="#directories">Complete File Tour</a></li>
+            
+            <div class="group-label">Usage</div>
+            <li><a href="#examples">General Example</a></li>
+            <li><a href="#setup">Getting Started</a></li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <header id="intro">
+            <span class="badge">v1.2.0 Stable</span>
+            <h1>Teeter Documentation</h1>
+            <p style="font-size: 1.25rem; color: var(--text-muted); max-width: 800px;">
+                A high-performance Proxying Load Balancer built with Go. 
+                Designed to be extremely fast, infinitely resilient, and deeply observable. 
+                Whether you're routing web traffic or internal microservices, Teeter is built to withstand chaos.
+            </p>
+        </header>
+
+        <!-- LOAD BALANCING 101 -->
+        <section id="lb101">
+            <h2>Load Balancing 101 (For Beginners)</h2>
+            <p>Imagine a very popular restaurant with just one waiter. When a hundred customers arrive, that waiter will become overwhelmed, make mistakes, and eventually collapse. The solution? Hire ten waiters and place a "Host" at the front door to direct each incoming customer to the least busy waiter.</p>
+            <p>In web infrastructure, your application servers are the waiters, and a <strong>Load Balancer</strong> (like Teeter) is the Host. It sits directly in front of your servers, intercepts incoming network traffic, and intelligently distributes it across your raw servers.</p>
+            
+            <div class="grid">
+                <div class="card">
+                    <h3>1. Routing (Prefixing)</h3>
+                    <p>Load balancers inspect the requested URL. Just like a mail sorting room, if a user requests <code>/api/login</code>, the load balancer recognizes the "api" part and routes the user strictly to the backend servers dedicated strictly to API tasks.</p>
+                </div>
+                <div class="card" style="border-color: var(--accent);">
+                    <h3>2. Health Checking</h3>
+                    <p>What if one of the backend servers suddenly crashes? A smart load balancer constantly "pings" every server in the background (asking "Are you alive?"). If a server fails to respond, the load balancer temporarily removes it from the list of healthy destinations.</p>
+                </div>
+                <div class="card" style="border-color: var(--warning);">
+                    <h3>3. Balancing Strategies</h3>
+                    <p>How does the load balancer know <i>which</i> alive server to send traffic to?</p>
+                    <ul style="border: none; padding-left: 1rem; font-size: 0.95rem;">
+                        <li><strong>Round Robin:</strong> Handing requests out eagerly in a circle. Server A gets Request 1, B gets 2, C gets 3, then back to A.</li>
+                        <li><strong>Least Connections:</strong> Sending the request to whichever server is currently working on the fewest active things.</li>
+                        <li><strong>Weighted:</strong> Directing 80% of traffic to a powerful server, and 20% to a weaker one.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- HOW TEETER WORKS -->
+        <section id="architecture">
+            <h2>How Teeter specifically works</h2>
+            <p>Teeter combines the basics of load balancing with modern cloud-native resiliency patterns.</p>
+            
+            <div class="diagram-box">
+[ User Request ] 
+       │
+       ▼
+( Gateway: Match URL path ) 
+       │
+       ▼
+[ Queue: Prevent sudden spikes ] 
+       │
+       ▼
+( Rate Limit: Stop spam ) 
+       │
+       ▼
+( Strategy: Pick a backend ) 
+       │
+       ▼
+[ Circuit Breaker: Fail fast on errors ] 
+       │
+       ▼
+( Final Delivery to Target Server )</div>
+
+            <p style="margin-top: 2rem;"><strong>Special Mechanisms in Teeter:</strong></p>
+            <ul>
+                <li><strong>Circuit Breaking:</strong> If a specific backend starts throwing HTTP 500 errors continuously, Teeter "breaks" the circuit, stopping all traffic to it for a cooldown period to give it a chance to recover.</li>
+                <li><strong>Retry Logic:</strong> If a connection fails mid-flight, Teeter invisibly tries a different healthy server before returning an error to the user, saving the user experience.</li>
+                <li><strong>Worker Pools:</strong> Instead of spinning up an infinite amount of invisible background tasks (Goroutines) and crashing itself by running out of memory, Teeter restricts itself to a specific limit of concurrent workers to guarantee low-latency.</li>
+            </ul>
+        </section>
+
+        <!-- PROJECT STRUCTURE -->
+        <section id="directories">
+            <h2>Complete File Tour</h2>
+            <p>Every single line of code in Teeter belongs to a well-defined domain. Below is the precise meaning of every file in the repository.</p>
+
+            <h3 style="margin-top: 2rem; color: #fff; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">Core Entry & Configuration</h3>
+            <div class="directory-grid">
+                <div class="file-card">
+                    <h4>lb/cmd/lb/main.go</h4>
+                    <p>The main entry point. Reads the config, initializes every component (routers, strategies, health), and starts the primary HTTP server loop.</p>
+                </div>
+                <div class="file-card">
+                    <h4>lb/pkg/config/config.go</h4>
+                    <p>Parses the <code>config.yaml</code> file into a Go struct so the application understands your routing rules and timeout preferences.</p>
+                </div>
+                <div class="file-card folder">
+                    <h4>config.yaml</h4>
+                    <p>Your user-facing brain. It's where you define the routes, algorithms, and backend URLs.</p>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 2rem; color: #fff; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">The Traffic Logic (lb/internal/)</h3>
+            <div class="directory-grid">
+                <div class="file-card">
+                    <h4>gateway/gateway.go</h4>
+                    <p>Accepts raw HTTP requests and funnels them into the load balancer lifecycle.</p>
+                </div>
+                <div class="file-card">
+                    <h4>gateway/router.go & route.go</h4>
+                    <p>Inspects the request URL string and matches it against your configured Prefix filters.</p>
+                </div>
+                <div class="file-card">
+                    <h4>registry/registry.go</h4>
+                    <p>A thread-safe memory map keeping strict track of which configured backend servers are currently alive vs. dead.</p>
+                </div>
+                <div class="file-card">
+                    <h4>health/checker.go</h4>
+                    <p>Runs continuous background timers to ping every backend's health-check URL, automatically updating the <code>registry</code> if one goes down.</p>
+                </div>
+                <div class="file-card">
+                    <h4>handler/handler.go</h4>
+                    <p>Generates the Reverse Proxy logic. It actually performs the act of taking user data and forwarding it securely to a target server.</p>
+                </div>
+                <div class="file-card">
+                    <h4>handler/error_pages.go</h4>
+                    <p>If every single backend server is completely offline, this returns a beautiful "Service Unavailable" HTML page instead of an ugly raw text error.</p>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 2rem; color: #fff; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">Resiliency & Math (lb/internal/)</h3>
+            <div class="directory-grid">
+                <div class="file-card">
+                    <h4>queue/queue.go</h4>
+                    <p>If Teeter receives 10,000 requests in a split second, the Queue briefly buffers them so backend servers don't crash from the flood.</p>
+                </div>
+                <div class="file-card">
+                    <h4>retry/retry.go</h4>
+                    <p>Seamlessly recovers dropped requests transparently by routing to the next healthiest alternative.</p>
+                </div>
+                <div class="file-card">
+                    <h4>circuitbreaker/circuitbreaker.go</h4>
+                    <p>Enforces maximum error thresholds, "tripping" and stopping all flow to failing domains for safety.</p>
+                </div>
+                <div class="file-card">
+                    <h4>ratelimit/bucket.go</h4>
+                    <p>Limits the number of requests a single IP address can originate per minute, preventing DoS attacks.</p>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 2rem; color: #fff; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">Selection Strategies (lb/internal/strategy/)</h3>
+            <div class="directory-grid">
+                <div class="file-card">
+                    <h4>strategy.go</h4>
+                    <p>The generic Interface defining how algorithms must be built.</p>
+                </div>
+                <div class="file-card">
+                    <h4>roundrobin.go</h4>
+                    <p>Rotates sequentially through every active backend linearly.</p>
+                </div>
+                <div class="file-card">
+                    <h4>leastconnections.go</h4>
+                    <p>Maintains a counter of active requests. Routes the next request to the server with the lowest current count.</p>
+                </div>
+                <div class="file-card">
+                    <h4>weightedroundrobin.go</h4>
+                    <p>Allocates requests based on an assigned integer weight (e.g. powerful server receives 5x the requests of a normal server).</p>
+                </div>
+                <div class="file-card">
+                    <h4>../consistenthashing/...</h4>
+                    <p>Uses a cryptographic hash of the User's IP so that a specific user ALWAYS gets routed to the same backend server (useful for session stability).</p>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 2rem; color: #fff; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">Monitoring & DevOps</h3>
+            <div class="directory-grid">
+                <div class="file-card">
+                    <h4>admin/admin.go</h4>
+                    <p>Spins up a separated private port (usually `:1997`) that returns JSON stats on the load balancer's current performance.</p>
+                </div>
+                <div class="file-card">
+                    <h4>metrics/metrics.go</h4>
+                    <p>Records latency distributions and error codes format-ready for Prometheus scraping.</p>
+                </div>
+                <div class="file-card">
+                    <h4>monitoring/...</h4>
+                    <p>Contains <code>prometheus.yml</code> and <code>grafana/datasources</code> which pre-configure external tools to visualize Teeter's statistics on gorgeous charts automatically.</p>
+                </div>
+                <div class="file-card">
+                    <h4>Dockerfile & docker-compose.yml</h4>
+                    <p>Container tooling. Compiles everything into a tiny binary image and launches it immediately alongside its monitoring databases.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- GENERAL EXAMPLES -->
+        <section id="examples">
+            <h2>General Example Scenario</h2>
+            <p>To put this together, imagine you are building an online <strong>Shoe Store API</strong>. Thousands of users are trying to buy shoes at the same time.</p>
+            
+            <div class="card" style="margin-bottom: 2rem;">
+                <h3>The Setup</h3>
+                <p>Because there is so much traffic, you run three identical cloud server instances of your API. Let's assume you launch Teeter strictly to sit in front of these instances.</p>
+                <div class="example-box">
+                    <pre>
+# config.yaml (You write this once)
+routes:
+  - prefix: "/api/"
+    strategy: "round_robin"
+    backends:
+      - url: "http://shoes-server-1:8080"
+      - url: "http://shoes-server-2:8080"
+      - url: "http://shoes-server-3:8080"
+</pre>
+                </div>
+            </div>
+
+            <div class="card" style="border-color: var(--primary);">
+                <h3>The Lifecycle of a Request</h3>
+                <ol style="margin-left: 1.5rem; color: var(--text-muted); line-height: 1.8;">
+                    <li>A user opens their browser and clicks "Purchase". The browser sends a request to <code>http://your-domain.com/api/buy</code>.</li>
+                    <li>Teeter's <strong>Gateway</strong> (<code>gateway.go</code>) receives the request before any of your servers ever see it.</li>
+                    <li>The <strong>Router</strong> (<code>router.go</code>) checks the <code>config.yaml</code> and sees that <code>/api/...</code> is explicitly defined.</li>
+                    <li>The <strong>Registry</strong> (<code>registry.go</code>) tells the load balancer that all three shoe servers are currently ALIVE and passing their health checks.</li>
+                    <li>The <strong>Strategy</strong> (<code>roundrobin.go</code>) decides that because Server #1 was used last time, Server #2 should be used this time.</li>
+                    <li>The request is seamlessly forwarded straight to <strong>shoes-server-2</strong>. The user's shoe disappears from inventory, and Server #2 replies back through Teeter.</li>
+                    <li>Teeter's <strong>Metrics</strong> engine logs the duration of the entire interaction, making it visible to your DevOps team via Grafana.</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- SETUP -->
+        <section id="setup">
+            <h2>Getting Started</h2>
+            <p style="margin-bottom: 2rem; color: var(--text-muted);">Deploy Teeter in seconds using Docker. The ecosystem comes pre-configured for instant setup.</p>
+            
+            <div class="card">
+                <h3>1. Start the Environment</h3>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1rem;">Spin up the Gateway, Backend, and Prometheus natively.</p>
+                <div class="example-box" style="margin-top: 0; background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.05); padding: 1rem;">
+                    <code style="background: none; color: #fff; font-size: 1.1rem;">docker-compose up -d</code>
+                </div>
+            </div>
+
+            <div class="grid" style="margin-top: 2rem;">
+                <div class="card" style="border-color: rgba(255, 255, 255, 0.1);">
+                    <h3>2. Verify Logs</h3>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1rem;">Ensure all traffic processes boot successfully.</p>
+                    <code style="background: rgba(0,0,0,0.3); color: #fff; padding: 0.75rem; display: block; text-align: center;">docker logs -f teeter</code>
+                </div>
+                <div class="card" style="border-color: var(--primary);">
+                    <h3>3. Access Dashboard</h3>
+                    <ul style="list-style: none; margin-top: 1rem; padding-left: 0;">
+                        <li style="margin-bottom: 0.75rem;">
+                            <span style="color: var(--text-muted); display: block; font-size: 0.85rem; margin-bottom: 0.25rem;">Admin API Health:</span> 
+                            <code style="color: var(--primary); background: rgba(59,130,246,0.1);">http://localhost:1997/health</code>
+                        </li>
+                        <li>
+                            <span style="color: var(--text-muted); display: block; font-size: 0.85rem; margin-bottom: 0.25rem;">Live Statistics (Grafana):</span> 
+                            <code style="color: var(--success); background: rgba(16,185,129,0.1);">http://localhost:3000</code>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <footer style="margin-top: 5rem; padding-top: 2rem; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.9rem; text-align: center;">
+            &copy; 2026 Teeter Project &bull; Built with Go &bull; Designed to route the internet
+        </footer>
+    </main>
+
+    <script>
+        // Active link tracker logic
+        const sections = document.querySelectorAll("header, section");
+        const navLinks = document.querySelectorAll(".nav-links a");
+
+        window.onscroll = () => {
+            var current = "";
+            sections.forEach((section) => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 120) {
+                    current = section.getAttribute("id");
+                }
+            });
+
+            navLinks.forEach((a) => {
+                a.classList.remove("active");
+                if (a.getAttribute("href") === ("#" + current)) {
+                    a.classList.add("active");
+                }
+            });
+        };
+    </script>
+</body>
+</html>
