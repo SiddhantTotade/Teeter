@@ -119,7 +119,6 @@
             font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 0.1em;
-            /* color: rgba(255,255,255,0.2); */
             color: #fff;
             margin: 1.5rem 0 0.5rem 0;
             padding-left: 1rem;
@@ -302,17 +301,89 @@
             font-size: 0.9rem;
         }
 
-        .diagram-box {
+        .flow-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 3rem 0;
+            padding: 2.5rem 0;
             background: #000;
             border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 2rem;
-            text-align: center;
+        }
+
+        .flow-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .flow-node {
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 2rem;
+            border-radius: 8px;
             font-family: 'JetBrains Mono', monospace;
-            color: var(--success);
-            line-height: 2;
-            overflow-x: auto;
-            white-space: pre;
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.5);
+            position: relative;
+            z-index: 2;
+            transition: all 0.3s ease;
+            animation: glowStep 4.2s infinite;
+        }
+
+        .flow-line {
+            width: 2px;
+            height: 35px;
+            background: rgba(255, 255, 255, 0.05);
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .flow-line::after {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, var(--primary), transparent);
+            animation: flowTrail 4.2s infinite linear;
+        }
+
+        /* Flow diagram animation delays & dynamic colors */
+        .flow-step:nth-child(1) .flow-node { animation-delay: 0s;   --glow-color: rgba(236, 72, 153, 0.4); --border-color: #ec4899; }
+        .flow-step:nth-child(1) .flow-line::after { animation-delay: 0.3s; }
+        
+        .flow-step:nth-child(2) .flow-node { animation-delay: 0.6s; --glow-color: rgba(139, 92, 246, 0.4); --border-color: #8b5cf6; }
+        .flow-step:nth-child(2) .flow-line::after { animation-delay: 0.9s; }
+        
+        .flow-step:nth-child(3) .flow-node { animation-delay: 1.2s; --glow-color: rgba(59, 130, 246, 0.4); --border-color: #3b82f6; }
+        .flow-step:nth-child(3) .flow-line::after { animation-delay: 1.5s; }
+        
+        .flow-step:nth-child(4) .flow-node { animation-delay: 1.8s; --glow-color: rgba(6, 182, 212, 0.4);  --border-color: #06b6d4; }
+        .flow-step:nth-child(4) .flow-line::after { animation-delay: 2.1s; }
+        
+        .flow-step:nth-child(5) .flow-node { animation-delay: 2.4s; --glow-color: rgba(16, 185, 129, 0.4); --border-color: #10b981; }
+        .flow-step:nth-child(5) .flow-line::after { animation-delay: 2.7s; }
+        
+        .flow-step:nth-child(6) .flow-node { animation-delay: 3.0s; --glow-color: rgba(245, 158, 11, 0.4); --border-color: #f59e0b; }
+        .flow-step:nth-child(6) .flow-line::after { animation-delay: 3.3s; }
+        
+        .flow-step:nth-child(7) .flow-node { animation-delay: 3.6s; --glow-color: rgba(239, 68, 68, 0.4);  --border-color: #ef4444; }
+
+        @keyframes flowTrail {
+            0% { top: -100%; opacity: 0; }
+            5% { top: -100%; opacity: 1; }
+            15% { top: 100%; opacity: 1; }
+            20% { top: 100%; opacity: 0; }
+            100% { top: 100%; opacity: 0; }
+        }
+        @keyframes glowStep {
+            0%, 100% { border-color: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.5); box-shadow: none; transform: scale(1); }
+            5%, 20% { border-color: var(--border-color); color: #fff; box-shadow: 0 0 20px var(--glow-color); transform: scale(1.02); }
+            25% { border-color: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.5); box-shadow: none; transform: scale(1); }
         }
 
         .copy-container {
@@ -495,26 +566,35 @@
             <h2>How Teeter Works</h2>
             <p>Teeter combines the basics of load balancing with modern cloud-native resiliency patterns.</p>
 
-            <div class="diagram-box">
-                [ User Request ]
-                │
-                ▼
-                ( Gateway: Match URL path )
-                │
-                ▼
-                [ Queue: Prevent sudden spikes ]
-                │
-                ▼
-                ( Rate Limit: Stop spam )
-                │
-                ▼
-                ( Strategy: Pick a backend )
-                │
-                ▼
-                [ Circuit Breaker: Fail fast on errors ]
-                │
-                ▼
-                ( Final Delivery to Target Server )</div>
+            <div class="flow-diagram">
+                <div class="flow-step">
+                    <div class="flow-node">User Request</div>
+                    <div class="flow-line"></div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-node">Gateway: Match URL path</div>
+                    <div class="flow-line"></div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-node">Queue: Prevent sudden spikes</div>
+                    <div class="flow-line"></div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-node">Rate Limit: Stop spam</div>
+                    <div class="flow-line"></div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-node">Strategy: Pick a backend</div>
+                    <div class="flow-line"></div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-node">Circuit Breaker: Fail fast on errors</div>
+                    <div class="flow-line"></div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-node">Final Delivery to Target Server</div>
+                </div>
+            </div>
 
             <p style="margin-top: 2rem;"><strong>Special Mechanisms in Teeter:</strong></p>
             <ul>
