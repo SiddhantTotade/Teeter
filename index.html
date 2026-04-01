@@ -7,17 +7,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0b0f1a;
-            --sidebar-bg: #111827;
-            --card-bg: rgba(30, 41, 59, 0.4);
-            --border: rgba(255, 255, 255, 0.1);
+            /* DEEP DARK THEME */
+            --bg: #030303;
+            --sidebar-bg: #0a0a0a;
+            --card-bg: rgba(15, 15, 15, 0.7);
+            --border: rgba(255, 255, 255, 0.06);
             --primary: #3b82f6;
-            --primary-glow: rgba(59, 130, 246, 0.5);
-            --text: #f1f5f9;
-            --text-muted: #94a3b8;
+            --primary-glow: rgba(59, 130, 246, 0.2);
+            --text: #e2e8f0;
+            --text-muted: #8b96a5;
             --accent: #8b5cf6;
             --success: #10b981;
             --warning: #f59e0b;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 2rem;
         }
 
         * {
@@ -68,6 +74,7 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 0 15px var(--primary-glow);
+            color: #fff;
         }
 
         .nav-links {
@@ -77,7 +84,7 @@
         }
 
         .nav-links::-webkit-scrollbar { width: 5px; }
-        .nav-links::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .nav-links::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 10px; }
 
         .nav-links li {
             margin-bottom: 1rem;
@@ -103,7 +110,7 @@
             font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 0.1em;
-            color: rgba(255,255,255,0.3);
+            color: rgba(255,255,255,0.2);
             margin: 1.5rem 0 0.5rem 0;
             padding-left: 1rem;
             font-weight: 700;
@@ -136,12 +143,12 @@
         .badge {
             display: inline-block;
             padding: 0.25rem 0.75rem;
-            background: rgba(59, 130, 246, 0.1);
+            background: rgba(59, 130, 246, 0.08);
             color: var(--primary);
             border-radius: 100px;
             font-size: 0.85rem;
             font-weight: 600;
-            border: 1px solid rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.15);
             margin-bottom: 1.5rem;
         }
 
@@ -193,11 +200,10 @@
         }
 
         .card:hover {
-            border-color: var(--primary);
-            border-top-color: var(--border);
+            border-color: rgba(59, 130, 246, 0.5) !important;
             transform: translateY(-5px);
-            background: rgba(30, 41, 59, 0.6);
-            box-shadow: 0 10px 40px -10px rgba(59, 130, 246, 0.1);
+            background: rgba(20, 20, 20, 0.8);
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
         }
 
         h3 {
@@ -222,7 +228,7 @@
 
         code {
             font-family: 'JetBrains Mono', monospace;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.05);
             padding: 0.2rem 0.4rem;
             border-radius: 4px;
             font-size: 0.9em;
@@ -237,12 +243,15 @@
         }
 
         .file-card {
-            background: rgba(0,0,0,0.2);
-            border: 1px solid rgba(255,255,255,0.05);
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.03);
             border-radius: 12px;
             padding: 1.2rem;
             font-size: 0.9rem;
+            transition: border-color 0.2s;
         }
+
+        .file-card:hover { border-color: rgba(255,255,255,0.1); }
 
         .file-card h4 {
             color: var(--primary);
@@ -266,24 +275,25 @@
         }
 
         .example-box {
-            background: rgba(16, 185, 129, 0.05);
-            border: 1px solid rgba(16, 185, 129, 0.2);
+            background: rgba(16, 185, 129, 0.03);
+            border: 1px solid rgba(16, 185, 129, 0.15);
             border-radius: 16px;
             padding: 1.5rem;
-            margin-top: 2rem;
+            margin-top: 1.5rem;
             overflow-x: auto;
         }
 
         .example-box pre {
             font-family: 'JetBrains Mono', monospace;
-            color: #fff;
+            color: #e2e8f0;
             margin: 0;
+            font-size: 0.9rem;
         }
 
         .diagram-box {
             background: #000;
             border-radius: 12px;
-            border: 1px solid var(--border);
+            border: 1px solid rgba(255,255,255,0.05);
             padding: 2rem;
             text-align: center;
             font-family: 'JetBrains Mono', monospace;
@@ -292,6 +302,15 @@
             overflow-x: auto;
             white-space: pre;
         }
+
+        .copy-container { position: relative; display: block; }
+        .copy-btn {
+            position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+            background: rgba(255,255,255,0.1); border: none; color: #fff;
+            padding: 0.3rem 0.6rem; border-radius: 6px; font-size: 0.75rem;
+            font-family: inherit; font-weight: 600; cursor: pointer; transition: background 0.2s;
+        }
+        .copy-btn:hover { background: var(--primary); }
 
         @keyframes fadeIn {
             from { opacity: 0; }
@@ -348,21 +367,29 @@
         <ul class="nav-links">
             <div class="group-label">Introduction</div>
             <li><a href="#intro">Overview</a></li>
-            <li><a href="#lb101">Load Balancing 101</a></li>
+            <li><a href="#lb101">Core Concepts</a></li>
             
             <div class="group-label">Deep Dive</div>
             <li><a href="#architecture">How Teeter Works</a></li>
             <li><a href="#directories">Complete File Tour</a></li>
             
             <div class="group-label">Usage</div>
-            <li><a href="#examples">General Example</a></li>
+            <li><a href="#examples">Strategy Examples</a></li>
             <li><a href="#setup">Getting Started</a></li>
         </ul>
     </nav>
 
     <main class="main-content">
         <header id="intro">
-            <span class="badge">v1.2.0 Stable</span>
+            <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem;">
+                <span class="badge" style="margin-bottom: 0;">v1.2.0 Stable</span>
+                <a href="https://github.com/SiddhantTotade/Teeter" target="_blank" style="display: flex; align-items: center; gap: 0.5rem; color: #fff; text-decoration: none; font-weight: 600; font-size: 0.85rem; background: rgba(255,255,255,0.05); padding: 0.35rem 1rem; border-radius: 100px; border: 1px solid rgba(255,255,255,0.1); transition: background 0.2s;">
+                    <svg height="16" aria-hidden="true" viewBox="0 0 16 16" version="1.1" width="16" style="fill: currentColor;">
+                        <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+                    </svg>
+                    GitHub
+                </a>
+            </div>
             <h1>Teeter Documentation</h1>
             <p style="font-size: 1.25rem; color: var(--text-muted); max-width: 800px;">
                 A high-performance Proxying Load Balancer built with Go. 
@@ -371,36 +398,27 @@
             </p>
         </header>
 
-        <!-- LOAD BALANCING 101 -->
+        <!-- CORE CONCEPTS -->
         <section id="lb101">
-            <h2>Load Balancing 101 (For Beginners)</h2>
-            <p>Imagine a very popular restaurant with just one waiter. When a hundred customers arrive, that waiter will become overwhelmed, make mistakes, and eventually collapse. The solution? Hire ten waiters and place a "Host" at the front door to direct each incoming customer to the least busy waiter.</p>
-            <p>In web infrastructure, your application servers are the waiters, and a <strong>Load Balancer</strong> (like Teeter) is the Host. It sits directly in front of your servers, intercepts incoming network traffic, and intelligently distributes it across your raw servers.</p>
+            <h2>Core Concepts</h2>
+            <p>As modern web applications scale, relying on a single upstream server becomes a critical bottleneck. High traffic volumes can quickly saturate a server's memory, CPU, or network bandwidth, leading to degraded performance and eventual downtime.</p>
+            <p>To solve this, infrastructure scales horizontally across multiple servers. A <strong>Load Balancer</strong> (like Teeter) acts as the centralized ingress proxy. It sits directly in front of your upstream nodes, intercepts thousands of concurrent network requests, and intelligently distributes them across the backend fleet to guarantee high availability and minimal latency.</p>
             
             <div class="grid">
                 <div class="card">
                     <h3>1. Routing (Prefixing)</h3>
-                    <p>Load balancers inspect the requested URL. Just like a mail sorting room, if a user requests <code>/api/login</code>, the load balancer recognizes the "api" part and routes the user strictly to the backend servers dedicated strictly to API tasks.</p>
+                    <p>Load balancers inspect the requested URL immediately upon ingress. If a client targets a specific endpoint (e.g., <code>/api/login</code>), Teeter parses the URI and strictly segregates traffic to the specific microservices configured for that domain.</p>
                 </div>
-                <div class="card" style="border-color: var(--accent);">
+                <div class="card" style="border-color: rgba(139, 92, 246, 0.4);">
                     <h3>2. Health Checking</h3>
-                    <p>What if one of the backend servers suddenly crashes? A smart load balancer constantly "pings" every server in the background (asking "Are you alive?"). If a server fails to respond, the load balancer temporarily removes it from the list of healthy destinations.</p>
-                </div>
-                <div class="card" style="border-color: var(--warning);">
-                    <h3>3. Balancing Strategies</h3>
-                    <p>How does the load balancer know <i>which</i> alive server to send traffic to?</p>
-                    <ul style="border: none; padding-left: 1rem; font-size: 0.95rem;">
-                        <li><strong>Round Robin:</strong> Handing requests out eagerly in a circle. Server A gets Request 1, B gets 2, C gets 3, then back to A.</li>
-                        <li><strong>Least Connections:</strong> Sending the request to whichever server is currently working on the fewest active things.</li>
-                        <li><strong>Weighted:</strong> Directing 80% of traffic to a powerful server, and 20% to a weaker one.</li>
-                    </ul>
+                    <p>Network components inevitably face transient failures. Teeter implements continuous background polling against configured upstream health-check endpoints. Any node failing to reply gracefully is autonomously evicted from the live traffic rotation until resolved.</p>
                 </div>
             </div>
         </section>
 
         <!-- HOW TEETER WORKS -->
         <section id="architecture">
-            <h2>How Teeter specifically works</h2>
+            <h2>How Teeter Works</h2>
             <p>Teeter combines the basics of load balancing with modern cloud-native resiliency patterns.</p>
             
             <div class="diagram-box">
@@ -428,7 +446,7 @@
             <ul>
                 <li><strong>Circuit Breaking:</strong> If a specific backend starts throwing HTTP 500 errors continuously, Teeter "breaks" the circuit, stopping all traffic to it for a cooldown period to give it a chance to recover.</li>
                 <li><strong>Retry Logic:</strong> If a connection fails mid-flight, Teeter invisibly tries a different healthy server before returning an error to the user, saving the user experience.</li>
-                <li><strong>Worker Pools:</strong> Instead of spinning up an infinite amount of invisible background tasks (Goroutines) and crashing itself by running out of memory, Teeter restricts itself to a specific limit of concurrent workers to guarantee low-latency.</li>
+                <li><strong>Worker Pools:</strong> Teeter restricts itself to a specific limit of concurrent workers to guarantee low-latency processing during traffic spikes.</li>
             </ul>
         </section>
 
@@ -437,7 +455,7 @@
             <h2>Complete File Tour</h2>
             <p>Every single line of code in Teeter belongs to a well-defined domain. Below is the precise meaning of every file in the repository.</p>
 
-            <h3 style="margin-top: 2rem; color: #fff; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">Core Entry & Configuration</h3>
+            <h3 style="margin-top: 2rem; color: #fff; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem;">Core Entry & Configuration</h3>
             <div class="directory-grid">
                 <div class="file-card">
                     <h4>lb/cmd/lb/main.go</h4>
@@ -453,7 +471,7 @@
                 </div>
             </div>
 
-            <h3 style="margin-top: 2rem; color: #fff; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">The Traffic Logic (lb/internal/)</h3>
+            <h3 style="margin-top: 2rem; color: #fff; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem;">The Traffic Logic (lb/internal/)</h3>
             <div class="directory-grid">
                 <div class="file-card">
                     <h4>gateway/gateway.go</h4>
@@ -477,11 +495,11 @@
                 </div>
                 <div class="file-card">
                     <h4>handler/error_pages.go</h4>
-                    <p>If every single backend server is completely offline, this returns a beautiful "Service Unavailable" HTML page instead of an ugly raw text error.</p>
+                    <p>If every single backend server is offline, this returns a beautiful "Service Unavailable" HTML page instead of an ugly raw text error.</p>
                 </div>
             </div>
 
-            <h3 style="margin-top: 2rem; color: #fff; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">Resiliency & Math (lb/internal/)</h3>
+            <h3 style="margin-top: 2rem; color: #fff; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem;">Resiliency & Math (lb/internal/)</h3>
             <div class="directory-grid">
                 <div class="file-card">
                     <h4>queue/queue.go</h4>
@@ -501,7 +519,7 @@
                 </div>
             </div>
 
-            <h3 style="margin-top: 2rem; color: #fff; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">Selection Strategies (lb/internal/strategy/)</h3>
+            <h3 style="margin-top: 2rem; color: #fff; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem;">Selection Strategies (lb/internal/strategy/)</h3>
             <div class="directory-grid">
                 <div class="file-card">
                     <h4>strategy.go</h4>
@@ -517,15 +535,15 @@
                 </div>
                 <div class="file-card">
                     <h4>weightedroundrobin.go</h4>
-                    <p>Allocates requests based on an assigned integer weight (e.g. powerful server receives 5x the requests of a normal server).</p>
+                    <p>Allocates requests based on an assigned integer weight.</p>
                 </div>
                 <div class="file-card">
                     <h4>../consistenthashing/...</h4>
-                    <p>Uses a cryptographic hash of the User's IP so that a specific user ALWAYS gets routed to the same backend server (useful for session stability).</p>
+                    <p>Uses a cryptographic hash of the User's IP so that a specific user ALWAYS gets routed to the same backend server.</p>
                 </div>
             </div>
 
-            <h3 style="margin-top: 2rem; color: #fff; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">Monitoring & DevOps</h3>
+            <h3 style="margin-top: 2rem; color: #fff; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem;">Monitoring & DevOps</h3>
             <div class="directory-grid">
                 <div class="file-card">
                     <h4>admin/admin.go</h4>
@@ -537,7 +555,7 @@
                 </div>
                 <div class="file-card">
                     <h4>monitoring/...</h4>
-                    <p>Contains <code>prometheus.yml</code> and <code>grafana/datasources</code> which pre-configure external tools to visualize Teeter's statistics on gorgeous charts automatically.</p>
+                    <p>Contains <code>prometheus.yml</code> and <code>grafana/datasources</code> which configure external tools to visualize stats.</p>
                 </div>
                 <div class="file-card">
                     <h4>Dockerfile & docker-compose.yml</h4>
@@ -546,39 +564,75 @@
             </div>
         </section>
 
-        <!-- GENERAL EXAMPLES -->
+        <!-- ROUTING STRATEGIES / EXAMPLES -->
         <section id="examples">
-            <h2>General Example Scenario</h2>
-            <p>To put this together, imagine you are building an online <strong>Shoe Store API</strong>. Thousands of users are trying to buy shoes at the same time.</p>
+            <h2> Routing Strategy Examples</h2>
+            <p>Teeter supports four distinct mathematical strategies for distributing traffic. Below are real-world examples explaining <b>when</b> and <b>how</b> to apply each algorithm securely inside your <code>config.yaml</code>.</p>
             
-            <div class="card" style="margin-bottom: 2rem;">
-                <h3>The Setup</h3>
-                <p>Because there is so much traffic, you run three identical cloud server instances of your API. Let's assume you launch Teeter strictly to sit in front of these instances.</p>
+            <div class="card" style="margin-bottom: 2rem; border-color: rgba(59, 130, 246, 0.4);">
+                <h3 style="color: #60a5fa;">1. Round Robin</h3>
+                <p><strong>The Scenario: Standard Web APIs.</strong> <br/>
+                Imagine a Shoe Store API. You have 3 identical cloud servers. You simply want to distribute traffic evenly without overthinking it. Teeter gives Request #1 to Server A, Request #2 to Server B, Request #3 to Server C, Request #4 back to Server A.</p>
                 <div class="example-box">
                     <pre>
-# config.yaml (You write this once)
-routes:
-  - prefix: "/api/"
-    strategy: "round_robin"
-    backends:
-      - url: "http://shoes-server-1:8080"
-      - url: "http://shoes-server-2:8080"
-      - url: "http://shoes-server-3:8080"
+- prefix: "/api/"
+  strategy: "round_robin"
+  backends:
+    - url: "http://shoes-server-1:8080"
+    - url: "http://shoes-server-2:8080"
+    - url: "http://shoes-server-3:8080"
 </pre>
                 </div>
             </div>
 
-            <div class="card" style="border-color: var(--primary);">
-                <h3>The Lifecycle of a Request</h3>
-                <ol style="margin-left: 1.5rem; color: var(--text-muted); line-height: 1.8;">
-                    <li>A user opens their browser and clicks "Purchase". The browser sends a request to <code>http://your-domain.com/api/buy</code>.</li>
-                    <li>Teeter's <strong>Gateway</strong> (<code>gateway.go</code>) receives the request before any of your servers ever see it.</li>
-                    <li>The <strong>Router</strong> (<code>router.go</code>) checks the <code>config.yaml</code> and sees that <code>/api/...</code> is explicitly defined.</li>
-                    <li>The <strong>Registry</strong> (<code>registry.go</code>) tells the load balancer that all three shoe servers are currently ALIVE and passing their health checks.</li>
-                    <li>The <strong>Strategy</strong> (<code>roundrobin.go</code>) decides that because Server #1 was used last time, Server #2 should be used this time.</li>
-                    <li>The request is seamlessly forwarded straight to <strong>shoes-server-2</strong>. The user's shoe disappears from inventory, and Server #2 replies back through Teeter.</li>
-                    <li>Teeter's <strong>Metrics</strong> engine logs the duration of the entire interaction, making it visible to your DevOps team via Grafana.</li>
-                </ol>
+            <div class="card" style="margin-bottom: 2rem; border-color: rgba(16, 185, 129, 0.4);">
+                <h3 style="color: #34d399;">2. Least Connections</h3>
+                <p><strong>The Scenario: Heavy Image Processing.</strong> <br/>
+                Imagine an app where users upload large raw files to be converted to JPEG. Some files take 1 second to convert, others take 30 seconds. A simple Round Robin algorithm might accidentally give a massive 30-second job to a server that is already choking. <br/><br/>
+                <i>Least Connections</i> dynamically monitors how many active requests each server is currently processing, and routes the new user to whoever is currently the most idle.</p>
+                <div class="example-box" style="background: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.2);">
+                    <pre>
+- prefix: "/upload/process"
+  strategy: "least_connections"
+  backends:
+    - url: "http://worker-1:9090"
+    - url: "http://worker-2:9090"
+</pre>
+                </div>
+            </div>
+
+            <div class="card" style="margin-bottom: 2rem; border-color: rgba(245, 158, 11, 0.4);">
+                <h3 style="color: #fbbf24;">3. Weighted Round Robin</h3>
+                <p><strong>The Scenario: Uneven Hardware / Progressive Rollouts.</strong> <br/>
+                Imagine you have a massive Bare-Metal Mainframe Server, but you also plugged in a weak Raspberry Pi. You want them both to help process traffic, but you know the Pi will crash if it receives standard traffic. <br/><br/>
+                You can assign weights. A weight of `8` for the Mainframe and `2` for the Pi means the Mainframe receives 80% of all traffic, and the Pi safely takes the remaining 20%.</p>
+                <div class="example-box" style="background: rgba(245, 158, 11, 0.05); border-color: rgba(245, 158, 11, 0.2);">
+                    <pre>
+- prefix: "/heavy-data"
+  strategy: "weighted_round_robin"
+  backends:
+    - url: "http://powerful-mainframe:80"
+      weight: 8
+    - url: "http://weak-raspberry-pi:80"
+      weight: 2
+</pre>
+                </div>
+            </div>
+
+            <div class="card" style="margin-bottom: 2rem; border-color: rgba(139, 92, 246, 0.4);">
+                <h3 style="color: #a78bfa;">4. Consistent Hashing</h3>
+                <p><strong>The Scenario: Caching and User Sessions.</strong> <br/>
+                Imagine a service that holds a user's temporary shopping cart in local memory. If John logs in and hits Server A, his cart is on Server A. If his next click is routed to Server B, his cart disappears!<br/><br/>
+                Consistent hashing uses cryptography on John's IP address. No matter how many times John refreshes the page, the load balancer's math ensures John is **always** predictably attached to Server A, ensuring his local sessions stay intact.</p>
+                <div class="example-box" style="background: rgba(139, 92, 246, 0.05); border-color: rgba(139, 92, 246, 0.2);">
+                    <pre>
+- prefix: "/cart"
+  strategy: "consistent_hashing"
+  backends:
+    - url: "http://stateful-server-1:3000"
+    - url: "http://stateful-server-2:3000"
+</pre>
+                </div>
             </div>
         </section>
 
@@ -590,16 +644,20 @@ routes:
             <div class="card">
                 <h3>1. Start the Environment</h3>
                 <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1rem;">Spin up the Gateway, Backend, and Prometheus natively.</p>
-                <div class="example-box" style="margin-top: 0; background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.05); padding: 1rem;">
-                    <code style="background: none; color: #fff; font-size: 1.1rem;">docker-compose up -d</code>
+                <div class="example-box copy-container" style="margin-top: 0; background: rgba(0,0,0,0.5); border-color: rgba(255,255,255,0.05); padding: 1rem;">
+                    <code id="cmd-start" style="background: none; color: #fff; font-size: 1.1rem; padding-right: 4rem;">docker-compose up -d</code>
+                    <button class="copy-btn" onclick="copyCMD('cmd-start', this)">Copy</button>
                 </div>
             </div>
 
             <div class="grid" style="margin-top: 2rem;">
-                <div class="card" style="border-color: rgba(255, 255, 255, 0.1);">
+                <div class="card" style="border-color: rgba(255, 255, 255, 0.05);">
                     <h3>2. Verify Logs</h3>
                     <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1rem;">Ensure all traffic processes boot successfully.</p>
-                    <code style="background: rgba(0,0,0,0.3); color: #fff; padding: 0.75rem; display: block; text-align: center;">docker logs -f teeter</code>
+                    <div class="copy-container">
+                        <code id="cmd-logs" style="background: rgba(0,0,0,0.5); color: #fff; padding: 0.75rem; display: block; text-align: left; border-radius: 8px;">docker logs -f teeter</code>
+                        <button class="copy-btn" onclick="copyCMD('cmd-logs', this)">Copy</button>
+                    </div>
                 </div>
                 <div class="card" style="border-color: var(--primary);">
                     <h3>3. Access Dashboard</h3>
@@ -623,6 +681,20 @@ routes:
     </main>
 
     <script>
+        // Copy to clipboard logic
+        function copyCMD(id, btn) {
+            const text = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = btn.innerText;
+                btn.innerText = "Copied!";
+                btn.style.background = "var(--success)";
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.background = "";
+                }, 2000);
+            });
+        }
+
         // Active link tracker logic
         const sections = document.querySelectorAll("header, section");
         const navLinks = document.querySelectorAll(".nav-links a");
