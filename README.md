@@ -1,5 +1,8 @@
 # Teeter: High-Performance L7 Load Balancer
 
+## About Teeter
+Teeter is a high-performance, production-ready Layer 7 Load Balancer and Reverse Proxy crafted in Go. Designed for microservices architecture, it bridges the gap between simplicity and industrial-strength resilience. Whether you're managing complex routing for a distributed system or ensuring zero-downtime for a single-page application, Teeter provides the stability of a seasoned proxy with the agility of a modern Go service.
+
 Teeter is a lightweight, production-grade **Layer 7 (Application Layer) Load Balancer** and **Reverse Proxy** built in Go. It provides mission-critical traffic management features including path-based routing, multiple balancing strategies, active health checks, and circuit breaking—all with zero-trust resilience.
 
 ---
