@@ -1,30 +1,30 @@
-# 🚀 Teeter: High-Performance L7 Load Balancer
+# Teeter: High-Performance L7 Load Balancer
 
 Teeter is a lightweight, production-grade **Layer 7 (Application Layer) Load Balancer** and **Reverse Proxy** built in Go. It provides mission-critical traffic management features including path-based routing, multiple balancing strategies, active health checks, and circuit breaking—all with zero-trust resilience.
 
 ---
 
-## 🌐 System Architecture
+## System Architecture
 ![Teeter Architecture](assets/Teeter.png)
 
 
 ---
 
-## 🔥 Key Features
+## Key Features
 
-- **🎯 Precision Routing**: Intelligent path matching (longest-prefix first) for microservices.
-- **⚖️ Advanced Strategies**: Supports Round Robin, Weighted Round Robin, and Least Connections.
-- **🛡️ Resilience Engine**: 
+- **Precision Routing**: Intelligent path matching (longest-prefix first) for microservices.
+- **Advanced Strategies**: Supports Round Robin, Weighted Round Robin, and Least Connections.
+- **Resilience Engine**: 
     - **Active Health Checks**: Continuous pings for real-time node availability.
     - **Circuit Breaker**: Automatically isolates failing nodes before they cause cascading failures.
     - **Retry Logic**: Configurable exponential backoff retries for transient 5xx errors.
-- **🔌 Protocol Upgrade Support**: Native support for **WebSockets** and Next.js **Hot-Module Reloading (HMR)** via direct hijacking.
-- **📈 Native Monitoring**: Fully instrumented with Prometheus and pre-built Grafana dashboards.
-- **🛠️ Zero-Restart Admin API**: Add backends or check real-time status via simple JSON endpoints.
+- **Protocol Upgrade Support**: Native support for **WebSockets** and Next.js **Hot-Module Reloading (HMR)** via direct hijacking.
+- **Native Monitoring**: Fully instrumented with Prometheus and pre-built Grafana dashboards.
+- **Zero-Restart Admin API**: Add backends or check real-time status via simple JSON endpoints.
 
 ---
 
-## 🛠️ HA & Resilience Mechanisms
+## HA & Resilience Mechanisms
 
 Teeter is built to survive in "flaky" environments (like development in WSL/Docker).
 
@@ -42,9 +42,9 @@ Teeter automatically injects `Cache-Control: no-cache, no-store, must-revalidate
 
 ---
 
-## ⚡ Quick Start
+## Quick Start
 
-### 📦 Production (Docker-First)
+### Production (Docker-First)
 The recommended way to run Teeter is using the pre-configured monitoring stack.
 
 ```bash
@@ -55,7 +55,7 @@ docker-compose up --build -d
 # Open http://localhost:3005 (Grafana default)
 ```
 
-### 💻 Local Development
+### Local Development
 If you prefer running without Docker:
 
 ```bash
@@ -65,7 +65,7 @@ go run lb/cmd/lb/main.go -config config.yaml
 
 ---
 
-## ⚙️ Configuration Guide (`config.yaml`)
+## Configuration Guide (`config.yaml`)
 
 Teeter configuration is clean and declarative.
 
@@ -89,7 +89,7 @@ routes:
 
 ---
 
-## 📊 Monitoring & Admin API
+## Monitoring & Admin API
 
 ### Prometheus Metrics
 - **Port**: `:1997/metrics`
