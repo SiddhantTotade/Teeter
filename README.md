@@ -27,6 +27,9 @@ graph TD
     end
 ```
 
+![Teeter Architecture](assets/Teeter.png)
+
+
 ---
 
 ## 🔥 Key Features
