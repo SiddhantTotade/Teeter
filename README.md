@@ -5,28 +5,6 @@ Teeter is a lightweight, production-grade **Layer 7 (Application Layer) Load Bal
 ---
 
 ## 🌐 System Architecture
-
-```mermaid
-graph TD
-    Client[Browser / Client] -->|HTTP/HTTPS| LB[Teeter Load Balancer]
-    
-    subgraph "Teeter Core"
-        LB --> Matcher[Path Matcher]
-        Matcher --> Strategy[Load Balancing Strategy]
-        Strategy --> CB[Circuit Breaker]
-    end
-    
-    subgraph "Backends"
-        CB -->| /api/* | Java[Java Backend :1994]
-        CB -->| / | React[React Frontend :3000]
-    end
-    
-    subgraph "Observability"
-        LB -->|Metrics| Prom[Prometheus]
-        Prom -->|Visuals| Grafana[Grafana Dashboard]
-    end
-```
-
 ![Teeter Architecture](assets/Teeter.png)
 
 
